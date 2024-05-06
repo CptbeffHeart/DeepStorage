@@ -64,21 +64,21 @@ interface StorageDisk {
         }
         
         private fun getDiskData(disk: ItemStack): DiskData {
-            return disk.retrieveData<DiskData>(DeepStorage, "diskData") ?: DiskData(capacity, itemAmount)
+            val map = disk.retrieveData<MutableMap<ItemStack, Int>>(DeepStorage, "disk_data") ?: mutableMapOf()
+            return DiskData(capacity, itemAmount, map)
         }
         
         private fun setDiskData(disk: ItemStack, diskData: DiskData) {
-            disk.storeData(DeepStorage, "diskData", diskData)
+            disk.storeData(DeepStorage, "disk_data", diskData.dataMap)
         }
         
     }
     
     class DiskData(
         private val capacity: Int,
-        private val itemAmount: Int
+        private val itemAmount: Int,
+        val dataMap: MutableMap<ItemStack, Int>
     ) {
-        
-        private val dataMap: MutableMap<ItemStack, Int> = mutableMapOf()
         
         fun getStoredItemTypeAmount(): Int {
             return dataMap.size
