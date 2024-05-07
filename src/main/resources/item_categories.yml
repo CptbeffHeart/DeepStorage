@@ -5,3 +5,6 @@ deep-storage:
   items:
     - deep_storage:deep_storage_unit
     - deep_storage:storage_cell_1k
+    - deep_storage:storage_cell_4k
+    - deep_storage:storage_cell_16k
+    - deep_storage:storage_cell_32k
