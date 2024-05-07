@@ -1,0 +1,7 @@
+deep-storage:
+  icon: deep_storage:storage_disk_1k
+  name: menu.deep_storage.items.category.deep_storage
+  priority: 5
+  items:
+    - deep_storage:deep_storage_unit
+    - deep_storage:storage_disk_1k
