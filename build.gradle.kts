@@ -24,8 +24,8 @@ dependencies {
 }
 
 addon {
-    id.set(project.name)
-    name.set(project.name.capitalized())
+    id.set("deep_storage")
+    name.set("Deep-Storage")
     version.set(project.version.toString())
     novaVersion.set(libs.versions.nova)
     main.set("com.expectale.DeepStorage")
