@@ -11,6 +11,8 @@
   "item.deep_storage.storage_cell_4k": "Storage Cell 4k",
   "item.deep_storage.storage_cell_16k": "Storage Cell 16k",
   "item.deep_storage.storage_cell_64k": "Storage Cell 64k",
+  "item.deep_storage.storage_cell.bytes": "%s of %s Bytes Used",
+  "item.deep_storage.storage_cell.types": "%s of %s Types Used",
   
   "block.deep_storage.deep_storage_unit": "Deep Storage Unit"
 }
