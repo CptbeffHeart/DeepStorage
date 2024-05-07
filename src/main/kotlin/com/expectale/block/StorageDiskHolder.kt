@@ -9,11 +9,20 @@ import xyz.xenondevs.nova.tileentity.TileEntity
 import xyz.xenondevs.nova.util.item.novaItem
 
 interface StorageDiskHolder {
-
+    
+    /**
+     * [VirtualInventory] where the disks are stored.
+     */
     val diskInventory: VirtualInventory
     
+    /**
+     * Function called when the disks are updated.
+     */
     fun callUpdateDisk()
     
+    /**
+     * How many slots the inventory has.
+     */
     fun getSize(): Int {
         return diskInventory.items
             .filterNotNull()
@@ -21,7 +30,10 @@ interface StorageDiskHolder {
             .sum()
     }
     
-    fun getItems(): MutableMap<ItemStack, Int> {
+    /**
+     * [Map] of all items from all disk with their amount.
+     */
+    fun getItems(): Map<ItemStack, Int> {
         return diskInventory.items
             .filterNotNull()
             .flatMap { disk ->
@@ -32,6 +44,9 @@ interface StorageDiskHolder {
             }
     }
     
+    /**
+     * Amount of specified [ItemStack] left on all disks.
+     */
     fun getItemAmount(item: ItemStack): Int {
         return diskInventory.items
             .filterNotNull()
@@ -42,6 +57,11 @@ interface StorageDiskHolder {
             .sumOf { it.value }
     }
     
+    
+    /**
+     * Add [ItemStack] in [StorageDisk] that has space for.
+     * Return the amount of item that can't be stored.
+     */
     fun addItemToDisk(item: ItemStack): Int {
         var add = item.amount
         diskInventory.items.forEachIndexed { index, disk ->
@@ -54,6 +74,10 @@ interface StorageDiskHolder {
         return add
     }
     
+    /**
+     * Remove [ItemStack] from [StorageDisk] that has it.
+     * Return the amount of item that can't be removed.
+     */
     fun removeItem(item: ItemStack, amount: Int = item.amount): Int {
         var rest = amount
         diskInventory.items.forEachIndexed { index, disk ->

@@ -12,18 +12,33 @@ import xyz.xenondevs.nova.util.item.storeData
 
 interface StorageDisk {
     
+    /**
+     * How many items the [StorageDisk] can store.
+     */
     val capacity: Int
     
+    /**
+     * How many different items ths [StorageDisk] can store.
+     */
     val itemAmount: Int
     
     fun add(disk: ItemStack, item: ItemStack) = add(disk, item, item.amount)
     
+    /**
+     * Function to add [ItemStack] to the specified [StorageDisk]
+     */
     fun add(disk: ItemStack, item: ItemStack, amount: Int): Int
     
     fun remove(disk: ItemStack, item: ItemStack) = remove(disk, item, item.amount)
     
+    /**
+     * Function to remove [ItemStack] from the specified [StorageDisk].
+     */
     fun remove(disk: ItemStack, item: ItemStack, amount: Int): Int
     
+    /**
+     * [Map] containing all the [ItemStack] stored in the [StorageDisk] with their amount
+     */
     fun getItems(disk: ItemStack): Map<ItemStack, Int>
     
     companion object : ItemBehaviorFactory<Default> {
