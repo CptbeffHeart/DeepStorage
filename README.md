@@ -29,4 +29,4 @@ The white elevator can be take from the inventory `/nova items` on the `Deep Sto
 # Credits
 Textures by Lil Essence (Discord: lilessencelerageulemalandrin)
 <br>
-Inspired by [DeepStoragePlus](https://github.com/christopherwalkerml/DeepStoragePlus)
+Inspired by [DeepStoragePlus](https://github.com/christopherwalkerml/DeepStoragePlus) and [Applied Energistics]("https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2")
