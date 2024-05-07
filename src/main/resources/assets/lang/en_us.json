@@ -1,5 +1,6 @@
 {
-  "inventory.deep_storage.disk_inventory": "Disk inventory",
+  "menu.deep_storage.disk_inventory": "Disk inventory",
+  "menu.deep_storage.items.category.deep_storage": "Deep Storage",
   
   "item.deep_storage.storage_disk_1k": "Storage Disk 1k",
   
