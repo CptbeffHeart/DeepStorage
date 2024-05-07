@@ -1,8 +1,8 @@
 {
-  "menu.deep_storage.disk_inventory": "Disk inventory",
+  "menu.deep_storage.cell_inventory": "Storage cell inventory",
   "menu.deep_storage.items.category.deep_storage": "Deep Storage",
   
-  "item.deep_storage.storage_disk_1k": "Storage Disk 1k",
+  "item.deep_storage.storage_cell_1k": "Storage Cell 1k",
   
   "block.deep_storage.deep_storage_unit": "Deep Storage Unit"
 }

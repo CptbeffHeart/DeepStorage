@@ -10,36 +10,36 @@ import xyz.xenondevs.nova.item.behavior.ItemBehaviorFactory
 import xyz.xenondevs.nova.util.item.retrieveData
 import xyz.xenondevs.nova.util.item.storeData
 
-interface StorageDisk {
+interface StorageCell {
     
     /**
-     * How many items the [StorageDisk] can store.
+     * How many items the [StorageCell] can store.
      */
     val capacity: Int
     
     /**
-     * How many different items ths [StorageDisk] can store.
+     * How many different items ths [StorageCell] can store.
      */
     val itemAmount: Int
     
-    fun add(disk: ItemStack, item: ItemStack) = add(disk, item, item.amount)
+    fun add(cell: ItemStack, item: ItemStack) = add(cell, item, item.amount)
     
     /**
-     * Function to add [ItemStack] to the specified [StorageDisk]
+     * Function to add [ItemStack] to the specified [StorageCell]
      */
-    fun add(disk: ItemStack, item: ItemStack, amount: Int): Int
+    fun add(cell: ItemStack, item: ItemStack, amount: Int): Int
     
-    fun remove(disk: ItemStack, item: ItemStack) = remove(disk, item, item.amount)
-    
-    /**
-     * Function to remove [ItemStack] from the specified [StorageDisk].
-     */
-    fun remove(disk: ItemStack, item: ItemStack, amount: Int): Int
+    fun remove(cell: ItemStack, item: ItemStack) = remove(cell, item, item.amount)
     
     /**
-     * [Map] containing all the [ItemStack] stored in the [StorageDisk] with their amount
+     * Function to remove [ItemStack] from the specified [StorageCell].
      */
-    fun getItems(disk: ItemStack): Map<ItemStack, Int>
+    fun remove(cell: ItemStack, item: ItemStack, amount: Int): Int
+    
+    /**
+     * [Map] containing all the [ItemStack] stored in the [StorageCell] with their amount
+     */
+    fun getItems(cell: ItemStack): Map<ItemStack, Int>
     
     companion object : ItemBehaviorFactory<Default> {
         
@@ -55,41 +55,41 @@ interface StorageDisk {
     class Default(
         capacity: Provider<Int>,
         itemAmount: Provider<Int>,
-    ): ItemBehavior, StorageDisk {
+    ): ItemBehavior, StorageCell {
         
         override val capacity by capacity
         override val itemAmount by itemAmount
         
-        override fun add(disk: ItemStack, item: ItemStack, amount: Int): Int {
-            val diskData = getDiskData(disk)
-            val rest = diskData.add(item, amount)
-            setDiskData(disk, diskData)
+        override fun add(cell: ItemStack, item: ItemStack, amount: Int): Int {
+            val cellData = getCellData(cell)
+            val rest = cellData.add(item, amount)
+            setCellData(cell, cellData)
             return rest
         }
         
-        override fun remove(disk: ItemStack, item: ItemStack, amount: Int): Int {
-            val diskData = getDiskData(disk)
-            val rest = diskData.remove(item, amount)
-            setDiskData(disk, diskData)
+        override fun remove(cell: ItemStack, item: ItemStack, amount: Int): Int {
+            val cellData = getCellData(cell)
+            val rest = cellData.remove(item, amount)
+            setCellData(cell, cellData)
             return rest
         }
         
-        override fun getItems(disk: ItemStack): Map<ItemStack, Int> {
-            return getDiskData(disk).getItems()
+        override fun getItems(cell: ItemStack): Map<ItemStack, Int> {
+            return getCellData(cell).getItems()
         }
         
-        private fun getDiskData(disk: ItemStack): DiskData {
-            val map = disk.retrieveData<MutableMap<ItemStack, Int>>(DeepStorage, "disk_data") ?: mutableMapOf()
-            return DiskData(capacity, itemAmount, map)
+        private fun getCellData(cell: ItemStack): CellData {
+            val map = cell.retrieveData<MutableMap<ItemStack, Int>>(DeepStorage, "cell_data") ?: mutableMapOf()
+            return CellData(capacity, itemAmount, map)
         }
         
-        private fun setDiskData(disk: ItemStack, diskData: DiskData) {
-            disk.storeData(DeepStorage, "disk_data", diskData.dataMap)
+        private fun setCellData(cell: ItemStack, cellData: CellData) {
+            cell.storeData(DeepStorage, "cell_data", cellData.dataMap)
         }
         
     }
     
-    class DiskData(
+    class CellData(
         private val capacity: Int,
         private val itemAmount: Int,
         val dataMap: MutableMap<ItemStack, Int>
