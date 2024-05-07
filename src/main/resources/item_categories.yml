@@ -7,4 +7,8 @@ deep-storage:
     - deep_storage:storage_cell_1k
     - deep_storage:storage_cell_4k
     - deep_storage:storage_cell_16k
-    - deep_storage:storage_cell_32k
+    - deep_storage:storage_cell_64k
+    - deep_storage:cell_component_1k
+    - deep_storage:cell_component_4k
+    - deep_storage:cell_component_16k
+    - deep_storage:cell_component_64k
