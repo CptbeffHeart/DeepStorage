@@ -1,12 +1,16 @@
 package com.expectale.item
 
 import com.expectale.DeepStorage
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.nova.data.config.entry
+import xyz.xenondevs.nova.data.serialization.cbf.NamespacedCompound
 import xyz.xenondevs.nova.item.NovaItem
 import xyz.xenondevs.nova.item.behavior.ItemBehavior
 import xyz.xenondevs.nova.item.behavior.ItemBehaviorFactory
+import xyz.xenondevs.nova.item.logic.PacketItemData
 import xyz.xenondevs.nova.util.item.retrieveData
 import xyz.xenondevs.nova.util.item.storeData
 
@@ -87,6 +91,34 @@ interface StorageCell {
             cell.storeData(DeepStorage, "cell_data", cellData.dataMap)
         }
         
+        private fun getCellData(data: NamespacedCompound): CellData {
+            val mapData: MutableMap<ItemStack, Int> = data[DeepStorage, "cell_data"] ?: mutableMapOf()
+            return CellData(capacity, itemAmount, mapData)
+        }
+        
+        override fun updatePacketItemData(data: NamespacedCompound, itemData: PacketItemData) {
+            val cellData = getCellData(data)
+            val bytes = Component.text()
+                .append(
+                    Component.translatable(
+                        "item.deep_storage.storage_cell.bytes",
+                        Component.text("${cellData.getStoredBytesAmount()}").color(NamedTextColor.GREEN),
+                        Component.text("$capacity").color(NamedTextColor.BLUE)
+                    ).color(NamedTextColor.GRAY)
+                )
+                .build()
+            val types = Component.text()
+                .append(
+                    Component.translatable(
+                        "item.deep_storage.storage_cell.types",
+                        Component.text("${cellData.getStoredItemTypeAmount()}").color(NamedTextColor.GREEN),
+                        Component.text("$itemAmount").color(NamedTextColor.BLUE)
+                    ).color(NamedTextColor.GRAY)
+                )
+                .build()
+            itemData.addLore(bytes)
+            itemData.addLore(types)
+        }
     }
     
     class CellData(
