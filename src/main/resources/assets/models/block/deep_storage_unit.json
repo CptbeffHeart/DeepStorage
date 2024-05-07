@@ -1,0 +1,8 @@
+{
+	"parent": "nova:block/block_front_side_top",
+	"textures": {
+		"front": "deep_storage:block/deep_storage_unit_front",
+		"side": "deep_storage:block/deep_storage_unit_side",
+		"top": "deep_storage:block/deep_storage_unit_top"
+	}
+}

@@ -1,0 +1,13 @@
+{
+  "result": "deep_storage:cell_component_1k",
+  "shape": [
+    "rqr",
+    "qgq",
+    "rqr"
+  ],
+  "ingredients": {
+    "r": "minecraft:redstone",
+    "q": "minecraft:quartz",
+    "g": "minecraft:gold_ingot"
+  }
+}

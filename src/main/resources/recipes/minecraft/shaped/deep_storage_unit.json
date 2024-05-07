@@ -1,0 +1,13 @@
+{
+  "result": "deep_storage:deep_storage_unit",
+  "shape": [
+    "dad",
+    "aia",
+    "dad"
+  ],
+  "ingredients": {
+    "d": "minecraft:deepslate",
+    "a": "minecraft:amethyst_shard",
+    "g": "minecraft:diamond"
+  }
+}
