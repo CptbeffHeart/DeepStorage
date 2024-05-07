@@ -3,6 +3,7 @@ package com.expectale.tileentity
 import com.expectale.block.StorageCellHolder
 import com.expectale.registry.GuiMaterials
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
@@ -142,11 +143,10 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             override fun getItemProvider(): ItemProvider {
                 val itemBuilder = ItemBuilder(item)
                 
-                val name = Component.text()
-                    .append(Component.text("x${amount}"))
-                    .build()
+                val displayName = item.displayName()
+                    .append(Component.text(" x${amount}").color(NamedTextColor.GREEN))
                 
-                itemBuilder.setDisplayName(name)
+                itemBuilder.setDisplayName(displayName)
                 return itemBuilder
             }
             
