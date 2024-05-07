@@ -1,14 +1,7 @@
 <h1 align="center">
     Deep Storage - Nova Addon
 </h1>
-<p align="center">
-  <a href="https://github.com/CptBeffHeart/DeepStorage/stargazers">
-    <img src="https://img.shields.io/github/stars/CptBeffHeart/DeepStorage">
-  </a>
-  <a href="https://github.com/CptbeffHeart/DeepStorage/releases">
-    <img src="https://img.shields.io/github/downloads/CptbeffHeart/DeepStorage/total.svg">
-  </a>
-</p>
+
 
 # Description
 [Nova](https://github.com/xenondevs/Nova) addon which adds a block to store bulk items<br>
