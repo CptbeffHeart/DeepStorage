@@ -12,7 +12,7 @@
   "storage_cell_64k": "item/cells/storage_cell_64k",
   
   "deep_storage_unit": {
-    "item": "block/deep_storage_unit",
+    "item": "deep_storage:block/deep_storage_unit",
     "block": {
       "directions": "nesw",
       "type": "solid"
