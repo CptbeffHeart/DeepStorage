@@ -1,6 +1,7 @@
 package com.expectale.tileentity
 
 import com.expectale.block.StorageCellHolder
+import com.expectale.registry.GuiMaterials
 import net.kyori.adventure.text.Component
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -27,6 +28,7 @@ import xyz.xenondevs.nova.tileentity.menu.TileEntityMenuClass
 import xyz.xenondevs.nova.tileentity.network.NetworkConnectionType
 import xyz.xenondevs.nova.tileentity.network.item.holder.NovaItemHolder
 import xyz.xenondevs.nova.tileentity.network.item.inventory.NetworkedInventory
+import xyz.xenondevs.nova.ui.addIngredient
 import xyz.xenondevs.nova.ui.config.side.OpenSideConfigItem
 import xyz.xenondevs.nova.ui.config.side.SideConfigMenu
 import xyz.xenondevs.nova.ui.item.BackItem
@@ -71,7 +73,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
     @TileEntityMenuClass
     inner class DeepStorageUnitMenu: GlobalTileEntityMenu() {
         
-        private val openCellWindow = clickableItem(DefaultItems.WRENCH.clientsideProvider) {
+        private val openCellWindow = clickableItem(GuiMaterials.STORAGE_CELL.clientsideProvider) {
             it.playClickSound()
             cellWindow.open(it)
         }
@@ -113,12 +115,12 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 "# # | d d d | # #",
                 "b # 3 - - - 4 # #",)
             .addIngredient('b', BackItem {openWindow(it)})
-            .addIngredient('d', cellInv)
+            .addIngredient('d', cellInv, GuiMaterials.STORAGE_CELL_PLACEHOLDER)
             .build()
         
         private val cellWindow = Window.single()
             .setGui(cellGui)
-            .setTitle(Component.translatable("menu.deep_storage.cell_inventory"))
+            .setTitle(Component.translatable("menu.deep_storage.storage_cell_inventory"))
         
         fun update() {
             inventory.updateInventory()
