@@ -23,7 +23,6 @@ import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.type.context.setTitle
 import xyz.xenondevs.nova.data.world.block.state.NovaTileEntityState
 import xyz.xenondevs.nova.item.DefaultGuiItems
-import xyz.xenondevs.nova.item.DefaultItems
 import xyz.xenondevs.nova.tileentity.NetworkedTileEntity
 import xyz.xenondevs.nova.tileentity.menu.TileEntityMenuClass
 import xyz.xenondevs.nova.tileentity.network.NetworkConnectionType
@@ -42,9 +41,12 @@ import xyz.xenondevs.nova.util.runTaskLater
 
 class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blockState), StorageCellHolder {
     
-    private val cellInv = getInventory("cell", 12, IntArray(12) { 1 }, false, ::handleCellUpdate, ::handlePostCellUpdate)
+    private val cellInv = retrieveData<VirtualInventory>("cell") {
+        VirtualInventory(IntArray(12) { 1 }) }.apply {
+        setPreUpdateHandler(::handleCellUpdate)
+        setPostUpdateHandler(::handlePostCellUpdate) }
     private val inputInv = VoidingVirtualInventory(1).apply { setPreUpdateHandler(::handlePreInput) }
-    private val inventory = DeepStorageInventory(getInventory("inventory", getSize()))
+    private val inventory = DeepStorageInventory(VirtualInventory(getSize()))
     
     override val itemHolder = NovaItemHolder(
         this,
@@ -69,6 +71,11 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         if (event.updateReason !is PlayerUpdateReason) return
         val player = (event.updateReason as PlayerUpdateReason).player
         runTaskLater(1) {player.addToInventoryOrDrop(listOf(item.apply { amount = rest }))}
+    }
+    
+    override fun saveData() {
+        super.saveData()
+        storeData("cell", cellInv, true)
     }
     
     @TileEntityMenuClass
