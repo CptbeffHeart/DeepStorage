@@ -36,6 +36,7 @@ import xyz.xenondevs.nova.ui.item.clickableItem
 import xyz.xenondevs.nova.util.BlockSide
 import xyz.xenondevs.nova.util.VoidingVirtualInventory
 import xyz.xenondevs.nova.util.addToInventoryOrDrop
+import xyz.xenondevs.nova.util.item.ItemUtils
 import xyz.xenondevs.nova.util.playClickSound
 import xyz.xenondevs.nova.util.runTaskLater
 
@@ -150,7 +151,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             override fun getItemProvider(): ItemProvider {
                 val itemBuilder = ItemBuilder(item)
                 
-                val displayName = item.displayName()
+                val displayName = ItemUtils.getName(item)
                     .append(Component.text(" x${amount}").color(NamedTextColor.GREEN))
                 
                 itemBuilder.setDisplayName(displayName)
