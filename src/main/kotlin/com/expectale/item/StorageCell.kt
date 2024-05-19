@@ -45,6 +45,11 @@ interface StorageCell {
      */
     fun getItems(cell: ItemStack): Map<ItemStack, Int>
     
+    /**
+     * Function to check if [StorageCell] is empty
+     */
+    fun isEmpty(cell: ItemStack): Boolean
+    
     companion object : ItemBehaviorFactory<Default> {
         
         override fun create(item: NovaItem): Default {
@@ -80,6 +85,11 @@ interface StorageCell {
         
         override fun getItems(cell: ItemStack): Map<ItemStack, Int> {
             return getCellData(cell).getItems()
+        }
+        
+        override fun isEmpty(cell: ItemStack): Boolean {
+            val cellData = getCellData(cell)
+            return cellData.getStoredBytesAmount() == 0 && cellData.getStoredItemTypeAmount() == 0
         }
         
         private fun getCellData(cell: ItemStack): CellData {
