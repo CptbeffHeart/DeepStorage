@@ -1,0 +1,4 @@
+#DeepStorageUnit
+#true - allow the player to store only empty storage cells in another storage cell
+#false - allow the player to store every storage cells in another storage cell (can create performance issue)
+prevent-infinite-storage: true

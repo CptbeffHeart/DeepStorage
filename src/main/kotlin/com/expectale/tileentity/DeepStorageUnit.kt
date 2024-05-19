@@ -1,6 +1,8 @@
 package com.expectale.tileentity
 
 import com.expectale.block.StorageCellHolder
+import com.expectale.item.StorageCell
+import com.expectale.registry.Blocks.DEEP_STORAGE_UNIT
 import com.expectale.registry.GuiMaterials
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -21,6 +23,7 @@ import xyz.xenondevs.invui.item.builder.setDisplayName
 import xyz.xenondevs.invui.item.impl.AbstractItem
 import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.type.context.setTitle
+import xyz.xenondevs.nova.data.config.entry
 import xyz.xenondevs.nova.data.world.block.state.NovaTileEntityState
 import xyz.xenondevs.nova.item.DefaultGuiItems
 import xyz.xenondevs.nova.tileentity.NetworkedTileEntity
@@ -37,8 +40,11 @@ import xyz.xenondevs.nova.util.BlockSide
 import xyz.xenondevs.nova.util.VoidingVirtualInventory
 import xyz.xenondevs.nova.util.addToInventoryOrDrop
 import xyz.xenondevs.nova.util.item.ItemUtils
+import xyz.xenondevs.nova.util.item.novaItem
 import xyz.xenondevs.nova.util.playClickSound
 import xyz.xenondevs.nova.util.runTaskLater
+
+private val PREVENT_INFINITE_STORAGE by DEEP_STORAGE_UNIT.config.entry<Boolean>("prevent-infinite-storage")
 
 class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blockState), StorageCellHolder {
     
@@ -65,6 +71,15 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
     private fun handlePreInput(event: ItemPreUpdateEvent) {
         if (event.updateReason == SELF_UPDATE_REASON || event.newItem == null) return
         val item = event.newItem!!
+        
+        if (PREVENT_INFINITE_STORAGE) {
+            val storageCell = item.novaItem?.getBehaviorOrNull<StorageCell>()
+            if (storageCell != null && !storageCell.isEmpty(item)) {
+                event.isCancelled = true
+                return
+            }
+        }
+        
         val rest = addItemToCell(item)
         menuContainer.forEachMenu(DeepStorageUnitMenu::update)
         
