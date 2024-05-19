@@ -60,6 +60,10 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         uuid to (inventory to NetworkConnectionType.BUFFER)
     ) { createSideConfig(NetworkConnectionType.BUFFER, BlockSide.FRONT) }
     
+    init {
+        inventory.updateInventory()
+    }
+    
     override val cellInventory: VirtualInventory
         get() = cellInv
     
