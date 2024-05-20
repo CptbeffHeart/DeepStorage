@@ -121,27 +121,27 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         
         private val contentGui = ScrollGui.items()
             .setStructure(
-                "| x x x x x x | s",
-                "| x x x x x x | u",
-                "| x x x x x x | d",
-                "| x x x x x x | #"
+                "x x x x x x x x #",
+                "x x x x x x x x u",
+                "x x x x x x x x d",
+                "x x x x x x x x #",
             )
-            .addIngredient('s', SortButton())
             .setContent(getDisplay())
             .build()
         
         override val gui = Gui.normal()
             .setStructure(
-                "1 - - - - - - 2 d",
+                "d u # # # # # # s",
+                "- - - - - - - - -",
                 "x x x x x x x x x",
                 "x x x x x x x x x",
                 "x x x x x x x x x",
-                "x x x x x x x x x",
-                "3 - - - - - - 4 s")
+                "x x x x x x x x x")
             .addIngredient('1', inputInv, DefaultGuiItems.LIGHT_CORNER_TOP_LEFT.clientsideProvider)
             .addIngredient('d', openCellWindow)
             .addIngredient('s', OpenSideConfigItem(sideConfigGui))
-            .addModifier { it.fillRectangle(0, 1, contentGui, true) }
+            .addIngredient('u', SortButton())
+            .addModifier { it.fillRectangle(0, 2, contentGui, true) }
             .build()
         
         private val cellGui = Gui.normal()
