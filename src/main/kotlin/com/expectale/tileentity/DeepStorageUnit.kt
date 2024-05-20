@@ -4,6 +4,7 @@ import com.expectale.block.StorageCellHolder
 import com.expectale.item.StorageCell
 import com.expectale.registry.Blocks.DEEP_STORAGE_UNIT
 import com.expectale.registry.GuiMaterials
+import com.expectale.registry.Items
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
@@ -39,10 +40,12 @@ import xyz.xenondevs.nova.ui.item.clickableItem
 import xyz.xenondevs.nova.util.BlockSide
 import xyz.xenondevs.nova.util.VoidingVirtualInventory
 import xyz.xenondevs.nova.util.addToInventoryOrDrop
+import xyz.xenondevs.nova.util.component.adventure.toPlainText
 import xyz.xenondevs.nova.util.item.ItemUtils
 import xyz.xenondevs.nova.util.item.novaItem
 import xyz.xenondevs.nova.util.playClickSound
 import xyz.xenondevs.nova.util.runTaskLater
+import java.util.Collections
 
 private val PREVENT_INFINITE_STORAGE by DEEP_STORAGE_UNIT.config.entry<Boolean>("prevent-infinite-storage")
 
@@ -59,6 +62,8 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         this,
         uuid to (inventory to NetworkConnectionType.BUFFER)
     ) { createSideConfig(NetworkConnectionType.BUFFER, BlockSide.FRONT) }
+    
+    private var sortMode by storedValue("sortMode") { SortMode.HIGHER_AMOUNT }
     
     init {
         inventory.updateInventory()
@@ -98,6 +103,10 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         storeData("cell", cellInv, true)
     }
     
+    enum class SortMode {
+        ALPHABETICAL, HIGHER_AMOUNT
+    }
+    
     @TileEntityMenuClass
     inner class DeepStorageUnitMenu: GlobalTileEntityMenu() {
         
@@ -112,11 +121,12 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         
         private val contentGui = ScrollGui.items()
             .setStructure(
-                "| x x x x x x | #",
-                "| x x x x x x | #",
+                "| x x x x x x | s",
                 "| x x x x x x | u",
-                "| x x x x x x | d"
+                "| x x x x x x | d",
+                "| x x x x x x | #"
             )
+            .addIngredient('s', SortButton())
             .setContent(getDisplay())
             .build()
         
@@ -160,12 +170,33 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         }
         
         private fun getDisplay(): List<ItemDisplay> {
-            return getItems().entries.map { (item, value) ->
-                ItemDisplay(item, value)
-            }.toList()
+            val list = getItems().entries
+                .map { (item, value) -> ItemDisplay(item, value) }
+            
+            return if (sortMode == SortMode.HIGHER_AMOUNT) list.sortedByDescending { it.amount }
+            else list.sortedBy { it.name() }
         }
         
-        inner class ItemDisplay(private val item: ItemStack, private val amount: Int): AbstractItem() {
+        inner class SortButton: AbstractItem() {
+            override fun getItemProvider(): ItemProvider {
+                return if (sortMode == SortMode.ALPHABETICAL) GuiMaterials.ALPHABETICAL_SORT.clientsideProvider
+                else GuiMaterials.STACK_SORT.clientsideProvider
+            }
+            
+            override fun handleClick(clickType: ClickType, player: Player, event: InventoryClickEvent) {
+                player.playClickSound()
+                sortMode = if (sortMode == SortMode.ALPHABETICAL) SortMode.HIGHER_AMOUNT else SortMode.ALPHABETICAL
+                notifyWindows()
+                updateContent()
+            }
+            
+        }
+        
+        inner class ItemDisplay(val item: ItemStack, val amount: Int): AbstractItem() {
+            
+            fun name(): String {
+                return ItemUtils.getName(item).toPlainText()
+            }
             
             override fun getItemProvider(): ItemProvider {
                 val itemBuilder = ItemBuilder(item)
