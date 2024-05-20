@@ -1,0 +1,6 @@
+{
+    "parent": "nova:item/gui/gui_item",
+    "textures": {
+      "1": "deep_storage:item/gui/sort/alphabetical"
+    }
+}

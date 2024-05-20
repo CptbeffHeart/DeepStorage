@@ -1,6 +1,8 @@
 {
   "gui_storage_cell_placeholder": "item/gui/storage_cell_placeholder",
   "gui_storage_cell": "item/gui/storage_cell",
+  "gui_sort_alphabetical": "item/gui/sort/alphabetical",
+  "gui_sort_stack": "item/gui/sort/stack",
   
   "cell_component_1k": "item/component/cell_component_1k",
   "cell_component_4k": "item/component/cell_component_4k",

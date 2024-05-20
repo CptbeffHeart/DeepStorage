@@ -2,6 +2,8 @@
   "menu.deep_storage.items.category.deep_storage": "Deep Storage",
   "menu.deep_storage.items.storage_cell": "Storage Cell Inventory",
   "menu.deep_storage.storage_cell_inventory": "Storage Cell Inventory",
+  "menu.deep_storage.items.alphabetical_sort": "Sort Inventory By Names",
+  "menu.deep_storage.items.stack_sort": "Sort Inventory By Higher Stack",
   
   "item.deep_storage.cell_component_1k": "1k Cell Component",
   "item.deep_storage.cell_component_4k": "4k Cell Component",

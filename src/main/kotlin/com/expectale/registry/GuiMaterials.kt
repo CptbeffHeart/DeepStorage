@@ -11,5 +11,7 @@ object GuiMaterials: ItemRegistry by DeepStorage.registry {
     
     val STORAGE_CELL_PLACEHOLDER = registerItem("gui_storage_cell_placeholder", localizedName = "", isHidden = true)
     val STORAGE_CELL = registerItem("gui_storage_cell", localizedName = "menu.deep_storage.items.storage_cell", isHidden = true)
+    val ALPHABETICAL_SORT = registerItem("gui_sort_alphabetical", localizedName = "menu.deep_storage.items.alphabetical_sort", isHidden = true)
+    val STACK_SORT = registerItem("gui_sort_stack", localizedName = "menu.deep_storage.items.stack_sort", isHidden = true)
     
 }
