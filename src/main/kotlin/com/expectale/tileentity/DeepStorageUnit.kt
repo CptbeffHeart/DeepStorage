@@ -1,10 +1,10 @@
 package com.expectale.tileentity
 
+import com.expectale.block.SecurityCardHolder
 import com.expectale.block.StorageCellHolder
 import com.expectale.item.StorageCell
 import com.expectale.registry.Blocks.DEEP_STORAGE_UNIT
 import com.expectale.registry.GuiMaterials
-import com.expectale.registry.Items
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
@@ -45,16 +45,18 @@ import xyz.xenondevs.nova.util.item.ItemUtils
 import xyz.xenondevs.nova.util.item.novaItem
 import xyz.xenondevs.nova.util.playClickSound
 import xyz.xenondevs.nova.util.runTaskLater
-import java.util.Collections
 
 private val PREVENT_INFINITE_STORAGE by DEEP_STORAGE_UNIT.config.entry<Boolean>("prevent-infinite-storage")
 
-class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blockState), StorageCellHolder {
+class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blockState), StorageCellHolder, SecurityCardHolder {
     
     private val cellInv = retrieveData<VirtualInventory>("cell") {
         VirtualInventory(IntArray(12) { 1 }) }.apply {
         setPreUpdateHandler(::handleCellUpdate)
         setPostUpdateHandler(::handlePostCellUpdate) }
+    private val cardInv = retrieveData<VirtualInventory>("card") {
+        VirtualInventory(IntArray(14) { 1 }) }.apply {
+        setPreUpdateHandler(::handleCardUpdate) }
     private val inputInv = VoidingVirtualInventory(1).apply { setPreUpdateHandler(::handlePreInput) }
     private val inventory = DeepStorageInventory(VirtualInventory(getSize()))
     
@@ -69,12 +71,28 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         inventory.updateInventory()
     }
     
+    override var whiteList: Boolean = false
+    
     override val cellInventory: VirtualInventory
         get() = cellInv
+    
+    override val cardInventory: VirtualInventory
+        get() = cardInv
     
     override fun callUpdateCell() {
         inventory.resize()
         menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+    }
+    
+    override fun canInputCard(player: Player): Boolean {
+        return player.isOp ||
+            player.hasPermission("deep_storage.security.bypass") ||
+            player.uniqueId == ownerUUID
+    }
+    
+    fun hasAccess(player: Player): Boolean {
+        if (canInputCard(player)) return true
+        return hasCardAccess(player)
     }
     
     private fun handlePreInput(event: ItemPreUpdateEvent) {
@@ -101,6 +119,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
     override fun saveData() {
         super.saveData()
         storeData("cell", cellInv, true)
+        storeData("card", cardInv, true)
     }
     
     enum class SortMode {
@@ -115,32 +134,40 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             cellWindow.open(it)
         }
         
+        private val openCardWindow = clickableItem(GuiMaterials.SECURITY_CARD.clientsideProvider) {
+            if (canInputCard(it)) {
+                it.playClickSound()
+                cardWindow.open(it)
+            }
+        }
+        
         private val sideConfigGui = SideConfigMenu(
             this@DeepStorageUnit, listOf(inventory to "inventory.nova.input"), ::openWindow
         )
         
         private val contentGui = ScrollGui.items()
             .setStructure(
-                "x x x x x x x x #",
-                "x x x x x x x x u",
-                "x x x x x x x x d",
-                "x x x x x x x x #",
+                "# x x x x x x x #",
+                "# x x x x x x x u",
+                "# x x x x x x x d",
+                "# x x x x x x x #",
             )
             .setContent(getDisplay())
             .build()
         
         override val gui = Gui.normal()
             .setStructure(
-                "d u # # # # # # s",
+                "d u # # # # c s #",
                 "- - - - - - - - -",
                 "x x x x x x x x x",
                 "x x x x x x x x x",
                 "x x x x x x x x x",
                 "x x x x x x x x x")
-            .addIngredient('1', inputInv, DefaultGuiItems.LIGHT_CORNER_TOP_LEFT.clientsideProvider)
+            .addIngredient('-', inputInv, DefaultGuiItems.LIGHT_HORIZONTAL_LINE.clientsideProvider)
             .addIngredient('d', openCellWindow)
             .addIngredient('s', OpenSideConfigItem(sideConfigGui))
             .addIngredient('u', SortButton())
+            .addIngredient('c', openCardWindow)
             .addModifier { it.fillRectangle(0, 2, contentGui, true) }
             .build()
         
@@ -160,6 +187,23 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             .setGui(cellGui)
             .setTitle(Component.translatable("menu.deep_storage.storage_cell_inventory"))
         
+        private val cardGui = Gui.normal()
+            .setStructure(
+                "# # # # # # # # w",
+                "1 - - - - - - - 2",
+                "| x x x x x x x |",
+                "| x x x x x x x |",
+                "3 - - - - - - - 4",
+                "b # # # # # # # #")
+            .addIngredient('w', WhitelistButton())
+            .addIngredient('b', BackItem {openWindow(it)})
+            .addIngredient('x', cardInv, GuiMaterials.SECURITY_CARD_PLACEHOLDER)
+            .build()
+        
+        private val cardWindow = Window.single()
+            .setGui(cardGui)
+            .setTitle(Component.translatable("menu.deep_storage.security_card_inventory"))
+        
         fun update() {
             inventory.updateInventory()
             updateContent()
@@ -175,6 +219,20 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             
             return if (sortMode == SortMode.HIGHER_AMOUNT) list.sortedByDescending { it.amount }
             else list.sortedBy { it.name() }
+        }
+        
+        inner class WhitelistButton: AbstractItem() {
+            override fun getItemProvider(): ItemProvider {
+                return if (whiteList) GuiMaterials.WHITELIST_ON.clientsideProvider
+                else GuiMaterials.WHITELIST_OFF.clientsideProvider
+            }
+            
+            override fun handleClick(clickType: ClickType, player: Player, event: InventoryClickEvent) {
+                player.playClickSound()
+                whiteList = !whiteList
+                notifyWindows()
+            }
+            
         }
         
         inner class SortButton: AbstractItem() {
@@ -249,6 +307,20 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 menuContainer.forEachMenu(DeepStorageUnitMenu::update)
             }
             
+        }
+        
+        override fun openWindow(player: Player) {
+            if (!hasAccess(player) && whiteList) {
+                player.sendMessage(
+                    Component.text()
+                    .append(
+                        Component.translatable("message.deep_storage.not_whitelisted")
+                            .color(NamedTextColor.DARK_RED)
+                    ).build()
+                )
+                return
+            }
+            super.openWindow(player)
         }
     }
     

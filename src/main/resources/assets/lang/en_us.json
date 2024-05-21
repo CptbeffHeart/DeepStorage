@@ -1,20 +1,30 @@
 {
-  "menu.deep_storage.items.category.deep_storage": "Deep Storage",
-  "menu.deep_storage.items.storage_cell": "Storage Cell Inventory",
-  "menu.deep_storage.storage_cell_inventory": "Storage Cell Inventory",
   "menu.deep_storage.items.alphabetical_sort": "Sort Inventory By Names",
+  "menu.deep_storage.items.category.deep_storage": "Deep Storage",
+  "menu.deep_storage.items.security_card": "Security Card Inventory",
   "menu.deep_storage.items.stack_sort": "Sort Inventory By Higher Stack",
+  "menu.deep_storage.items.storage_cell": "Storage Cell Inventory",
+  "menu.deep_storage.items.whitelist_off": "Whitelist : Off",
+  "menu.deep_storage.items.whitelist_on": "Whitelist : On",
+  "menu.deep_storage.security_card_inventory": "Security Card Inventory",
+  "menu.deep_storage.storage_cell_inventory": "Storage Cell Inventory",
   
+  "item.deep_storage.cell_component_16k": "16k Cell Component",
   "item.deep_storage.cell_component_1k": "1k Cell Component",
   "item.deep_storage.cell_component_4k": "4k Cell Component",
-  "item.deep_storage.cell_component_16k": "16k Cell Component",
   "item.deep_storage.cell_component_64k": "64k Cell Component",
-  "item.deep_storage.storage_cell_1k": "Storage Cell 1k",
-  "item.deep_storage.storage_cell_4k": "Storage Cell 4k",
-  "item.deep_storage.storage_cell_16k": "Storage Cell 16k",
-  "item.deep_storage.storage_cell_64k": "Storage Cell 64k",
+  "item.deep_storage.empty_security_card": "Empty Security Card",
+  "item.deep_storage.empty_security_card.lore": "Shift click to set owner",
+  "item.deep_storage.security_card": "Security Card : %s",
+  "item.deep_storage.security_card.lore": "Shift click to clear",
   "item.deep_storage.storage_cell.bytes": "%s of %s Bytes Used",
   "item.deep_storage.storage_cell.types": "%s of %s Types Used",
+  "item.deep_storage.storage_cell_16k": "Storage Cell 16k",
+  "item.deep_storage.storage_cell_1k": "Storage Cell 1k",
+  "item.deep_storage.storage_cell_4k": "Storage Cell 4k",
+  "item.deep_storage.storage_cell_64k": "Storage Cell 64k",
   
-  "block.deep_storage.deep_storage_unit": "Deep Storage Unit"
+  "block.deep_storage.deep_storage_unit": "Deep Storage Unit",
+  
+  "message.deep_storage.not_whitelisted": "You are not whitelisted"
 }

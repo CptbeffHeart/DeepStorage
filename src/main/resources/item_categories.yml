@@ -12,3 +12,5 @@ deep-storage:
     - deep_storage:cell_component_4k
     - deep_storage:cell_component_16k
     - deep_storage:cell_component_64k
+    - deep_storage:empty_security_card
+    - deep_storage:security_card
