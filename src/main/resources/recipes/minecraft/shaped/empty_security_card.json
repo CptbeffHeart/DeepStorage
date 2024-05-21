@@ -1,0 +1,12 @@
+{
+  "result": "deep_storage:empty_security_card",
+  "shape": [
+    "iri",
+    "ggg"
+  ],
+  "ingredients": {
+    "r": "minecraft:redstone",
+    "g": "minecraft:gold_ingot",
+    "i": "minecraft:iron_ingot"
+  }
+}
