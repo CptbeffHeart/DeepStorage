@@ -1,6 +1,8 @@
 package com.expectale.registry
 
 import com.expectale.DeepStorage
+import com.expectale.item.EmptySecurityCard
+import com.expectale.item.SecurityCard
 import com.expectale.item.StorageCell
 import xyz.xenondevs.nova.addon.registry.ItemRegistry
 import xyz.xenondevs.nova.initialize.Init
@@ -20,6 +22,10 @@ object Items: ItemRegistry by DeepStorage.registry {
     val CELL_COMPONENT_4k = registerItem("cell_component_4k")
     val CELL_COMPONENT_16k = registerItem("cell_component_16k")
     val CELL_COMPONENT_64k = registerItem("cell_component_64k")
+    
+    //Security Card
+    val EMPTY_SECURITY_CARD = registerItem("empty_security_card", EmptySecurityCard)
+    val SECURITY_CARD = registerItem("security_card", SecurityCard)
     
     //Blocks
     val DEEP_STORAGE_UNIT = registerItem(Blocks.DEEP_STORAGE_UNIT)
