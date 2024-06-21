@@ -12,12 +12,15 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
+import xyz.xenondevs.invui.gui.AbstractScrollGui
 import xyz.xenondevs.invui.gui.Gui
-import xyz.xenondevs.invui.gui.ScrollGui
+import xyz.xenondevs.invui.gui.SlotElement
+import xyz.xenondevs.invui.gui.structure.Structure
 import xyz.xenondevs.invui.inventory.VirtualInventory
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason
 import xyz.xenondevs.invui.inventory.event.UpdateReason
+import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.builder.ItemBuilder
 import xyz.xenondevs.invui.item.builder.setDisplayName
@@ -145,15 +148,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             this@DeepStorageUnit, listOf(inventory to "inventory.nova.input"), ::openWindow
         )
         
-        private val contentGui = ScrollGui.items()
-            .setStructure(
-                "# x x x x x x x #",
-                "# x x x x x x x u",
-                "# x x x x x x x d",
-                "# x x x x x x x #",
-            )
-            .setContent(getDisplay())
-            .build()
+        private val customScroll = CustomScrollGui().apply { setContent(getDisplay()) }
         
         override val gui = Gui.normal()
             .setStructure(
@@ -168,7 +163,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             .addIngredient('s', OpenSideConfigItem(sideConfigGui))
             .addIngredient('u', SortButton())
             .addIngredient('c', openCardWindow)
-            .addModifier { it.fillRectangle(0, 2, contentGui, true) }
+            .addModifier { it.fillRectangle(0, 2, customScroll, true) }
             .build()
         
         private val cellGui = Gui.normal()
@@ -210,7 +205,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         }
         
         fun updateContent() {
-            contentGui.setContent(getDisplay())
+            customScroll.setContent(getDisplay())
         }
         
         private fun getDisplay(): List<ItemDisplay> {
@@ -271,10 +266,16 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 itemStack.amount = itemStack.maxStackSize.coerceAtMost(amount)
                 
                 val cursor = player.itemOnCursor
-                if (!cursor.type.isAir && clickType == ClickType.LEFT) {
-                    val rest = addItemToCell(cursor)
-                    if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
-                    cursor.amount = rest
+                if (!cursor.type.isAir) {
+                    if (clickType == ClickType.LEFT) {
+                        val rest = addItemToCell(cursor)
+                        if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                        cursor.amount = rest
+                    } else if (clickType == ClickType.RIGHT) {
+                        val rest = addItemToCell(cursor.clone().apply { amount = 1 })
+                        if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                        cursor.amount = cursor.amount - 1
+                    }
                     return
                 }
                 
@@ -379,6 +380,47 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 virtualInventory.setItem(SELF_UPDATE_REASON, index,
                     entry.key.apply { amount = maxStackSize.coerceAtMost(entry.value) })
             }
+        }
+        
+    }
+    
+    inner class CustomScrollGui: AbstractScrollGui<Item>(9, 4, true,
+        Structure(
+            "# x x x x x x x #",
+            "# x x x x x x x u",
+            "# x x x x x x x d",
+            "# x x x x x x x #",
+        )) {
+        
+        override fun bake() {
+            val elements = ArrayList<SlotElement>(content.size)
+            for (item in content) {
+                elements.add(SlotElement.ItemSlotElement(item))
+            }
+            this.elements = elements
+            update()
+        }
+        
+        override fun handleClick(slotNumber: Int, player: Player?, clickType: ClickType?, event: InventoryClickEvent) {
+            if (slotElements[slotNumber] == null) {
+                event.isCancelled = true
+                val cursor = player?.itemOnCursor ?: return
+                if (cursor.type.isAir) return
+                
+                if (clickType == ClickType.LEFT) {
+                    val rest = addItemToCell(cursor)
+                    if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                    cursor.amount = rest
+                } else if (clickType == ClickType.RIGHT) {
+                    val rest = addItemToCell(cursor.clone().apply { amount = 1 })
+                    if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                    cursor.amount = cursor.amount - 1
+                }
+                
+                return
+            }
+            
+            super.handleClick(slotNumber, player, clickType, event)
         }
         
     }
