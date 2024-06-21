@@ -266,10 +266,16 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 itemStack.amount = itemStack.maxStackSize.coerceAtMost(amount)
                 
                 val cursor = player.itemOnCursor
-                if (!cursor.type.isAir && clickType == ClickType.LEFT) {
-                    val rest = addItemToCell(cursor)
-                    if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
-                    cursor.amount = rest
+                if (!cursor.type.isAir) {
+                    if (clickType == ClickType.LEFT) {
+                        val rest = addItemToCell(cursor)
+                        if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                        cursor.amount = rest
+                    } else if (clickType == ClickType.RIGHT) {
+                        val rest = addItemToCell(cursor.clone().apply { amount = 1 })
+                        if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                        cursor.amount = cursor.amount - 1
+                    }
                     return
                 }
                 
@@ -399,11 +405,16 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             if (slotElements[slotNumber] == null) {
                 event.isCancelled = true
                 val cursor = player?.itemOnCursor ?: return
+                if (cursor.type.isAir) return
                 
-                if (!cursor.type.isAir && clickType == ClickType.LEFT) {
+                if (clickType == ClickType.LEFT) {
                     val rest = addItemToCell(cursor)
                     if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
                     cursor.amount = rest
+                } else if (clickType == ClickType.RIGHT) {
+                    val rest = addItemToCell(cursor.clone().apply { amount = 1 })
+                    if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                    cursor.amount = cursor.amount - 1
                 }
                 
                 return
