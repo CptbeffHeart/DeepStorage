@@ -2,11 +2,6 @@
     <img src="https://github.com/CptbeffHeart/DeepStorage/assets/51067790/56b79f88-439c-411e-b484-5ccc355ce0ef">
 </h1>
 <p align="center">
-  <img src="https://github.com/CptbeffHeart/DeepStorage/assets/51067790/7c998e96-e051-4aa2-91df-79d9088c58e6">
-    <br>
-    Sort inventory by amount or by names.
-</p>
-<p align="center">
   <a href="https://github.com/CptBeffHeart/DeepStorage/stargazers">
     <img src="https://img.shields.io/github/stars/CptBeffHeart/DeepStorage">
   </a>
