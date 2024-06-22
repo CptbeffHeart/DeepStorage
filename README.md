@@ -20,16 +20,17 @@
 All the items can be taken from the inventory `/nova items` on the `Deep Storage` tab
 <br>
 You can use the command `/nova give <player> deep_storage:<itemName>`
+
 ## Setup
 <p align="center">
-  <img src="https://github.com/CptbeffHeart/DeepStorage/assets/51067790/268e8d89-9cb5-4be5-9366-e0573060af87">
+  <img src="https://github.com/CptbeffHeart/DeepStorage/assets/51067790/e9a894d8-8227-48bb-8c55-8aef040529b0">
     <br>
     Add storage cells in the storage cell inventory to increase storage capacity.
 </p>
 
 ## Sorting
 <p align="center">
-  <img src="https://github.com/CptbeffHeart/DeepStorage/assets/51067790/3ecc63fb-e817-4af8-b721-ed62cd4cb03c">
+  <img src="https://github.com/CptbeffHeart/DeepStorage/assets/51067790/7c998e96-e051-4aa2-91df-79d9088c58e6">
     <br>
     Sort inventory by amount or by names.
 </p>
@@ -40,7 +41,7 @@ A security card can be setup by shift right-clicking with it in hand.
 The security card can be clear by shift right-clicking with it in hand
 The deep storage security can be activated by clicking on the lock on the top right off the security inventory
 <p align="center">
-  <img src="https://github.com/CptbeffHeart/DeepStorage/assets/51067790/4c5b79c4-a51f-4420-a261-1dad8b3e52d7">
+  <img src="https://github.com/CptbeffHeart/DeepStorage/assets/51067790/26da4762-4a05-4340-9bf4-d3eac68ea659">
     <br>
     Activating security
 </p>
