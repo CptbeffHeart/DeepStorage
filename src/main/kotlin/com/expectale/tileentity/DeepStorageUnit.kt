@@ -384,7 +384,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         
     }
     
-    inner class CustomScrollGui: AbstractScrollGui<Item>(9, 4, true,
+    inner class CustomScrollGui: AbstractScrollGui<Item>(9, 4, false,
         Structure(
             "# x x x x x x x #",
             "# x x x x x x x u",
