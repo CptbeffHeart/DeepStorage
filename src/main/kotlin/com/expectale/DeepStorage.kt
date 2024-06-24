@@ -1,6 +1,8 @@
 package com.expectale
 
+import com.expectale.protection.DeepStorageProtection
 import xyz.xenondevs.nova.addon.Addon
+import xyz.xenondevs.nova.api.Nova
 import xyz.xenondevs.nova.update.ProjectDistributor
 import java.util.logging.Logger
 
@@ -12,6 +14,7 @@ object DeepStorage : Addon() {
     
     override fun init() {
         LOGGER = logger
+        Nova.getNova().registerProtectionIntegration(DeepStorageProtection)
     }
     
 }

@@ -20,6 +20,7 @@ repositories {
 dependencies {
     paperweight.paperDevBundle(libs.versions.paper)
     implementation(libs.nova)
+    compileOnly("xyz.xenondevs.nova:nova-api:0.16")
 }
 
 addon {
