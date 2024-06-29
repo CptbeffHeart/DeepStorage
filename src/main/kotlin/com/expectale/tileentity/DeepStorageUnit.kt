@@ -20,6 +20,7 @@ import xyz.xenondevs.invui.inventory.VirtualInventory
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason
 import xyz.xenondevs.invui.inventory.event.UpdateReason
+import xyz.xenondevs.invui.inventory.get
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.builder.ItemBuilder
@@ -338,8 +339,17 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             get() = virtualInventory.items
         
         override fun setItem(slot: Int, item: ItemStack?): Boolean {
-            if (item != null) {
-                removeItem(item)
+            val currentStack = virtualInventory.getUnsafeItem(slot)!!
+            if (item == null) {
+                removeItem(currentStack)
+                virtualInventory.setItem(null, slot, null)
+                cleanInventory()
+                menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+            } else {
+                val itemAmount = currentStack.amount - item.amount
+                removeItem(item, itemAmount)
+                virtualInventory.setItem(UpdateReason.SUPPRESSED, slot, item.clone()
+                    .apply{ amount = maxStackSize.coerceAtMost(itemAmount) })
                 menuContainer.forEachMenu(DeepStorageUnitMenu::update)
             }
             return true
@@ -379,6 +389,14 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             getItems().entries.mapIndexed { index, entry ->
                 virtualInventory.setItem(SELF_UPDATE_REASON, index,
                     entry.key.apply { amount = maxStackSize.coerceAtMost(entry.value) })
+            }
+        }
+        
+        private fun cleanInventory() {
+            resize()
+            for (i in 0..< getSize()) {
+                inventory.getItem(i) ?: continue
+                virtualInventory.setItem(null, i, null)
             }
         }
         
