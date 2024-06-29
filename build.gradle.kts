@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "com.expectale"
-version = "1.5.2"
+version = "1.6.0"
 
 val mojangMapped = project.hasProperty("mojang-mapped")
 
