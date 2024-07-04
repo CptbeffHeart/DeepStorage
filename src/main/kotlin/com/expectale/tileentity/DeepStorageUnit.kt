@@ -2,9 +2,10 @@ package com.expectale.tileentity
 
 import com.expectale.block.SecurityCardHolder
 import com.expectale.block.StorageCellHolder
-import com.expectale.item.StorageCell
+import com.expectale.storage_cell.StorageCell
 import com.expectale.registry.Blocks.DEEP_STORAGE_UNIT
 import com.expectale.registry.GuiMaterials
+import com.expectale.storage_cell.VirtualStorageCell
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
@@ -20,12 +21,12 @@ import xyz.xenondevs.invui.inventory.VirtualInventory
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason
 import xyz.xenondevs.invui.inventory.event.UpdateReason
-import xyz.xenondevs.invui.inventory.get
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.builder.ItemBuilder
 import xyz.xenondevs.invui.item.builder.setDisplayName
 import xyz.xenondevs.invui.item.impl.AbstractItem
+import xyz.xenondevs.invui.item.notifyWindows
 import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.type.context.setTitle
 import xyz.xenondevs.nova.data.config.entry
@@ -54,11 +55,8 @@ private val PREVENT_INFINITE_STORAGE by DEEP_STORAGE_UNIT.config.entry<Boolean>(
 
 class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blockState), StorageCellHolder, SecurityCardHolder {
     
-    private val cellInv = retrieveData<VirtualInventory>("cell") {
-        VirtualInventory(IntArray(12) { 1 }) }.apply {
-        setPreUpdateHandler(::handleCellUpdate)
-        setPostUpdateHandler(::handlePostCellUpdate) }
-    private val cardInv = retrieveData<VirtualInventory>("card") {
+    override val virtualMap = HashMap<Int, VirtualStorageCell>()
+    override val cardInventory = retrieveData<VirtualInventory>("card") {
         VirtualInventory(IntArray(14) { 1 }) }.apply {
         setPreUpdateHandler(::handleCardUpdate) }
     private val inputInv = VoidingVirtualInventory(1).apply { setPreUpdateHandler(::handlePreInput) }
@@ -76,12 +74,6 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
     }
     
     override var whiteList: Boolean = false
-    
-    override val cellInventory: VirtualInventory
-        get() = cellInv
-    
-    override val cardInventory: VirtualInventory
-        get() = cardInv
     
     override fun callUpdateCell() {
         inventory.resize()
@@ -111,8 +103,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             }
         }
         
-        val rest = addItemToCell(item)
-        menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+        val rest = inventory.addInventoryItem(item)
         
         if (rest == 0) return
         if (event.updateReason !is PlayerUpdateReason) return
@@ -122,8 +113,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
     
     override fun saveData() {
         super.saveData()
-        storeData("cell", cellInv, true)
-        storeData("card", cardInv, true)
+        storeData("card", cardInventory, true)
     }
     
     enum class SortMode {
@@ -167,16 +157,29 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             .addModifier { it.fillRectangle(0, 2, customScroll, true) }
             .build()
         
+        private val cells = ArrayList<CellDisplay>()
+        
         private val cellGui = Gui.normal()
             .setStructure(
                 "# # 1 - - - 2 # #",
-                "# # | d d d | # #",
-                "# # | d d d | # #",
-                "# # | d d d | # #",
-                "# # | d d d | # #",
-                "b # 3 - - - 4 # #",)
-            .addIngredient('b', BackItem {openWindow(it)})
-            .addIngredient('d', cellInv, GuiMaterials.STORAGE_CELL_PLACEHOLDER)
+                "# # | a b c | # #",
+                "# # | d e f | # #",
+                "# # | g h i | # #",
+                "# # | j k l | # #",
+                "r # 3 - - - 4 # #",)
+            .addIngredient('r', BackItem {openWindow(it)})
+            .addIngredient('a', CellDisplay(0).apply(cells::add))
+            .addIngredient('b', CellDisplay(1).apply(cells::add))
+            .addIngredient('c', CellDisplay(2).apply(cells::add))
+            .addIngredient('d', CellDisplay(3).apply(cells::add))
+            .addIngredient('e', CellDisplay(4).apply(cells::add))
+            .addIngredient('f', CellDisplay(5).apply(cells::add))
+            .addIngredient('g', CellDisplay(6).apply(cells::add))
+            .addIngredient('h', CellDisplay(7).apply(cells::add))
+            .addIngredient('i', CellDisplay(8).apply(cells::add))
+            .addIngredient('j', CellDisplay(9).apply(cells::add))
+            .addIngredient('k', CellDisplay(10).apply(cells::add))
+            .addIngredient('l', CellDisplay(11).apply(cells::add))
             .build()
         
         private val cellWindow = Window.single()
@@ -193,7 +196,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 "b # # # # # # # #")
             .addIngredient('w', WhitelistButton())
             .addIngredient('b', BackItem {openWindow(it)})
-            .addIngredient('x', cardInv, GuiMaterials.SECURITY_CARD_PLACEHOLDER)
+            .addIngredient('x', cardInventory, GuiMaterials.SECURITY_CARD_PLACEHOLDER)
             .build()
         
         private val cardWindow = Window.single()
@@ -227,6 +230,27 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 player.playClickSound()
                 whiteList = !whiteList
                 notifyWindows()
+            }
+            
+        }
+        
+        inner class CellDisplay(val slot: Int): AbstractItem() {
+            override fun getItemProvider(): ItemProvider {
+                return virtualMap[slot]?.toDisplay() ?: GuiMaterials.STORAGE_CELL_PLACEHOLDER.clientsideProvider
+            }
+            
+            override fun handleClick(clickType: ClickType, player: Player, event: InventoryClickEvent) {
+                player.playClickSound()
+                val virtualStorageCell = virtualMap[slot]
+                if (virtualStorageCell == null) {
+                    val itemOnCursor = player.itemOnCursor
+                    virtualMap[slot] = itemOnCursor.novaItem?.getBehaviorOrNull<StorageCell>()?.toVirtual(itemOnCursor)!!
+                    cells.notifyWindows()
+                    return
+                }
+                sortMode = if (sortMode == SortMode.ALPHABETICAL) SortMode.HIGHER_AMOUNT else SortMode.ALPHABETICAL
+                notifyWindows()
+                updateContent()
             }
             
         }
@@ -269,12 +293,12 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 val cursor = player.itemOnCursor
                 if (!cursor.type.isAir) {
                     if (clickType == ClickType.LEFT) {
-                        val rest = addItemToCell(cursor)
-                        if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                        val rest = inventory.addInventoryItem(cursor)
+                        //if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
                         cursor.amount = rest
                     } else if (clickType == ClickType.RIGHT) {
-                        val rest = addItemToCell(cursor.clone().apply { amount = 1 })
-                        if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                        val rest = inventory.addInventoryItem(cursor.clone().apply { amount = 1 })
+                        //if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
                         cursor.amount = cursor.amount - 1
                     }
                     return
@@ -306,7 +330,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 } else return
                 
                 removeItem(itemStack)
-                menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
             }
             
         }
@@ -344,21 +368,19 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 removeItem(currentStack)
                 virtualInventory.setItem(null, slot, null)
                 cleanInventory()
-                menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
             } else {
                 val itemAmount = currentStack.amount - item.amount
                 removeItem(item, itemAmount)
                 virtualInventory.setItem(UpdateReason.SUPPRESSED, slot, item.clone()
                     .apply{ amount = maxStackSize.coerceAtMost(itemAmount) })
-                menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
             }
             return true
         }
         
         override fun addItem(item: ItemStack): Int {
-            val toCell = addItemToCell(item)
-            menuContainer.forEachMenu(DeepStorageUnitMenu::update)
-            return toCell
+            return addInventoryItem(item)
         }
         
         override fun canDecrementByOne(slot: Int): Boolean {
@@ -371,7 +393,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         }
         
         override fun decrementByOne(slot: Int) {
-            val item = inventory.getItem(slot)
+            val item = virtualInventory.getItem(slot)
             if (item != null) {
                 val itemAmount = getItemAmount(item)
                 virtualInventory.setItem(UpdateReason.SUPPRESSED, slot, item.clone()
@@ -386,10 +408,16 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         }
         
         fun updateInventory() {
+            cleanInventory()
             getItems().entries.mapIndexed { index, entry ->
                 virtualInventory.setItem(SELF_UPDATE_REASON, index,
-                    entry.key.apply { amount = maxStackSize.coerceAtMost(entry.value) })
+                    entry.key.clone().apply { amount = maxStackSize.coerceAtMost(entry.value) })
             }
+            /*println("-> After update")
+            for (item1 in virtualInventory.items) {
+                if (item1 == null) continue
+                println("[$item1]")
+            }*/
         }
         
         private fun cleanInventory() {
@@ -398,6 +426,30 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 inventory.getItem(i) ?: continue
                 virtualInventory.setItem(null, i, null)
             }
+        }
+        
+        fun addInventoryItem(item: ItemStack): Int {
+            val itemAmount = getItemAmount(item)
+            val invSlot = getInvSlot(item)
+            val rest = addItemToCell(item)
+            if (rest == item.amount) return rest
+            if (invSlot == 0) {
+                virtualInventory.addItem(null,
+                    item.clone().apply { this.amount = item.maxStackSize.coerceAtMost(item.amount - rest) })
+            } else {
+                virtualInventory.setItem(null, invSlot,
+                    item.clone().apply { this.amount = itemAmount.coerceAtMost(item.maxStackSize) })
+            }
+            if (rest != item.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
+            return rest
+        }
+        
+        private fun getInvSlot(item: ItemStack): Int {
+            for ((index, items) in virtualInventory.items.withIndex()) {
+                if (items?.isSimilar(item) == false) continue
+                return index
+            }
+            return 0
         }
         
     }
@@ -426,12 +478,12 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 if (cursor.type.isAir) return
                 
                 if (clickType == ClickType.LEFT) {
-                    val rest = addItemToCell(cursor)
-                    if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                    val rest = inventory.addInventoryItem(cursor)
+                    //if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
                     cursor.amount = rest
                 } else if (clickType == ClickType.RIGHT) {
-                    val rest = addItemToCell(cursor.clone().apply { amount = 1 })
-                    if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::update)
+                    val rest = inventory.addInventoryItem(cursor.clone().apply { amount = 1 })
+                    //if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
                     cursor.amount = cursor.amount - 1
                 }
                 
