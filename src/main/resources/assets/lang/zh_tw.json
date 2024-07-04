@@ -1,0 +1,30 @@
+{
+    "menu.deep_storage.items.alphabetical_sort": "按名稱排序",
+    "menu.deep_storage.items.category.deep_storage": "深入存儲",
+    "menu.deep_storage.items.security_card": "權限卡配置",
+    "menu.deep_storage.items.stack_sort": "按數量排序",
+    "menu.deep_storage.items.storage_cell": "存儲單元配置",
+    "menu.deep_storage.items.whitelist_off": "白名單: 關",
+    "menu.deep_storage.items.whitelist_on": "白名單: 開",
+    "menu.deep_storage.security_card_inventory": "權限卡配置",
+    "menu.deep_storage.storage_cell_inventory": "存儲單元配置",
+    
+    "item.deep_storage.cell_component_16k": "16k 存儲元件",
+    "item.deep_storage.cell_component_1k": "1k 存儲元件",
+    "item.deep_storage.cell_component_4k": "4k 存儲元件",
+    "item.deep_storage.cell_component_64k": "64k 存儲元件",
+    "item.deep_storage.empty_security_card": "空白權限卡",
+    "item.deep_storage.empty_security_card.lore": "按住Shift鍵竝單擊以設置所有者",
+    "item.deep_storage.security_card": "權限卡: %s",
+    "item.deep_storage.security_card.lore": "按住Shift鍵竝單擊以清除",
+    "item.deep_storage.storage_cell.bytes": "%s of %s Bytes 使用",
+    "item.deep_storage.storage_cell.types": "%s of %s Types 使用",
+    "item.deep_storage.storage_cell_16k": "16k 存儲單元",
+    "item.deep_storage.storage_cell_1k": "1k 存儲單元",
+    "item.deep_storage.storage_cell_4k": "4k 存儲單元",
+    "item.deep_storage.storage_cell_64k": "64k 存儲單元",
+    
+    "block.deep_storage.deep_storage_unit": "存儲終端",
+    
+    "message.deep_storage.not_whitelisted": "你不在白名單中"
+  }
