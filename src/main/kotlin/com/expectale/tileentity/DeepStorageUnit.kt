@@ -234,23 +234,32 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
             
         }
         
-        inner class CellDisplay(val slot: Int): AbstractItem() {
+        inner class CellDisplay(private val slot: Int): AbstractItem() {
             override fun getItemProvider(): ItemProvider {
                 return virtualMap[slot]?.toDisplay() ?: GuiMaterials.STORAGE_CELL_PLACEHOLDER.clientsideProvider
             }
             
             override fun handleClick(clickType: ClickType, player: Player, event: InventoryClickEvent) {
-                player.playClickSound()
                 val virtualStorageCell = virtualMap[slot]
-                if (virtualStorageCell == null) {
-                    val itemOnCursor = player.itemOnCursor
-                    virtualMap[slot] = itemOnCursor.novaItem?.getBehaviorOrNull<StorageCell>()?.toVirtual(itemOnCursor)!!
+                val itemOnCursor = player.itemOnCursor
+                val cell = itemOnCursor.novaItem?.getBehaviorOrNull<StorageCell>()
+                
+                if (virtualStorageCell == null && !itemOnCursor.type.isAir) {
+                    if (cell == null) return
+                    virtualMap[slot] = cell.toVirtual(itemOnCursor)
                     cells.notifyWindows()
-                    return
+                    updateContent()
+                } else if (virtualStorageCell != null && itemOnCursor.type.isAir) {
+                    player.setItemOnCursor(virtualMap[slot]!!.toItem())
+                    virtualMap.remove(slot)
+                    cells.notifyWindows()
+                    updateContent()
+                } else if (virtualStorageCell != null && cell != null && itemOnCursor.amount == 1) {
+                    player.setItemOnCursor(virtualMap[slot]!!.toItem())
+                    virtualMap[slot] = cell.toVirtual(itemOnCursor)
+                    cells.notifyWindows()
+                    updateContent()
                 }
-                sortMode = if (sortMode == SortMode.ALPHABETICAL) SortMode.HIGHER_AMOUNT else SortMode.ALPHABETICAL
-                notifyWindows()
-                updateContent()
             }
             
         }
@@ -294,11 +303,9 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
                 if (!cursor.type.isAir) {
                     if (clickType == ClickType.LEFT) {
                         val rest = inventory.addInventoryItem(cursor)
-                        //if (rest != cursor.amount) menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
                         cursor.amount = rest
                     } else if (clickType == ClickType.RIGHT) {
-                        val rest = inventory.addInventoryItem(cursor.clone().apply { amount = 1 })
-                        //if (rest == 0) menuContainer.forEachMenu(DeepStorageUnitMenu::updateContent)
+                        inventory.addInventoryItem(cursor.clone().apply { amount = 1 })
                         cursor.amount = cursor.amount - 1
                     }
                     return
