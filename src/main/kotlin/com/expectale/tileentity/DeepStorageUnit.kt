@@ -200,7 +200,6 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         
         fun updateContent() {
             customScroll.setContent(getDisplay())
-            cellInventory.notifyWindows()
         }
         
         private fun getDisplay(): List<ItemDisplay> {
