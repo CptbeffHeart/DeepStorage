@@ -3,8 +3,18 @@ package com.expectale.block
 import com.expectale.storage_cell.StorageCell
 import com.expectale.storage_cell.VirtualStorageCell
 import org.bukkit.inventory.ItemStack
+import xyz.xenondevs.invui.inventory.VirtualInventory
+import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent
+import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
+import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason
+import xyz.xenondevs.nova.tileentity.TileEntity
+import xyz.xenondevs.nova.util.VoidingVirtualInventory
+import xyz.xenondevs.nova.util.addToInventoryOrDrop
+import xyz.xenondevs.nova.util.item.novaItem
 
 interface StorageCellHolder {
+    
+    val cellInventory: VirtualInventory
     
     val virtualMap: HashMap<Int, VirtualStorageCell>
     
@@ -46,8 +56,9 @@ interface StorageCellHolder {
      */
     fun addItemToCell(item: ItemStack, update: Boolean = true): Int {
         var remainingAmount = item.amount
-        virtualMap.values.forEach { entry ->
+        virtualMap.values.forEachIndexed { index, entry ->
             remainingAmount = entry.add(item, remainingAmount)
+            updateCell(index)
             if (remainingAmount == 0) return 0
         }
         return remainingAmount
@@ -60,11 +71,52 @@ interface StorageCellHolder {
      */
     fun removeItem(item: ItemStack, amount: Int = item.amount, update: Boolean = true): Int {
         var remainingAmount = amount
-        virtualMap.values.forEach { entry ->
+        virtualMap.values.forEachIndexed { index, entry ->
             remainingAmount = entry.remove(item, remainingAmount)
+            updateCell(index)
             if (remainingAmount == 0) return 0
         }
         return remainingAmount
+    }
+    
+    fun updateCell(slot: Int) {
+        cellInventory.setItem(TileEntity.SELF_UPDATE_REASON, slot,
+            if (virtualMap.containsKey(slot)) virtualMap[slot]!!.toDisplay().get() else null)
+    }
+    
+    fun updateCellInv() {
+        for (i in 0..< cellInventory.size) updateCell(i)
+        cellInventory.notifyWindows()
+        callUpdateCell()
+    }
+    
+    fun handleCellUpdate(event: ItemPreUpdateEvent) {
+        if (event.updateReason == TileEntity.SELF_UPDATE_REASON || (event.newItem == null && event.previousItem == null)) return
+        
+        if (event.isAdd) {
+            event.isCancelled = event.newItem?.novaItem?.getBehaviorOrNull<StorageCell>() == null
+        } else if (event.isRemove) {
+            event.isCancelled = true
+            if (!virtualMap.containsKey(event.slot)) return
+            if (event.updateReason is PlayerUpdateReason) {
+                val player = (event.updateReason as PlayerUpdateReason).player
+                player.addToInventoryOrDrop(listOf(virtualMap.remove(event.slot)!!.toItem()))
+            }
+            updateCellInv()
+        } else if (event.isSwap) {
+            event.isCancelled = true
+        }
+    }
+    
+    fun handlePostCellUpdate(event: ItemPostUpdateEvent) {
+        if (event.updateReason == TileEntity.SELF_UPDATE_REASON || event.newItem == null) return
+        if (event.isAdd) {
+            val stack = event.newItem
+            val storageCell = stack?.novaItem?.getBehaviorOrNull<StorageCell>() ?: return
+            virtualMap[event.slot] = storageCell.toVirtual(stack)
+            stack.amount = 0
+            updateCellInv()
+        }
     }
     
 }
