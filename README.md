@@ -63,7 +63,7 @@ Put this addon on the addon folder `plugins/Nova/addons`
 >[!Tip]
 > You can follow the [official nova setup guide](https://xenondevs.xyz/docs/nova/admin/setup/).
 
-## Provided Services
+# Provided Services
 
 | Service type                  | Availability |
 |-------------------------------|--------------|
