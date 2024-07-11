@@ -25,7 +25,7 @@ class CellData(
     }
     
     fun add(item: ItemStack, amount: Int): Int {
-        return addData(transform(item), amount)
+        return addData(singleStack(item), amount)
     }
     
     private fun addData(item: ItemStack, amount: Int): Int {
@@ -44,7 +44,7 @@ class CellData(
     }
     
     fun remove(item: ItemStack, amount: Int): Int {
-        return removeData(transform(item), amount)
+        return removeData(singleStack(item), amount)
     }
     
     private fun removeData(item: ItemStack, amount: Int): Int {
@@ -62,7 +62,7 @@ class CellData(
         }
     }
     
-    private fun transform(item: ItemStack): ItemStack {
+    private fun singleStack(item: ItemStack): ItemStack {
         val clone = item.clone()
         clone.amount = 1
         return clone
