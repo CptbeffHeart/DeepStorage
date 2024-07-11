@@ -3,7 +3,7 @@ package com.expectale.registry
 import com.expectale.DeepStorage
 import com.expectale.item.EmptySecurityCard
 import com.expectale.item.SecurityCard
-import com.expectale.item.StorageCell
+import com.expectale.storage_cell.StorageCell
 import xyz.xenondevs.nova.addon.registry.ItemRegistry
 import xyz.xenondevs.nova.initialize.Init
 import xyz.xenondevs.nova.initialize.InitStage
