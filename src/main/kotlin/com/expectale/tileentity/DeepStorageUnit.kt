@@ -5,7 +5,6 @@ import com.expectale.block.StorageCellHolder
 import com.expectale.registry.Blocks.DEEP_STORAGE_UNIT
 import com.expectale.registry.GuiMaterials
 import com.expectale.storage_cell.StorageCell
-import com.expectale.storage_cell.VirtualStorageCell
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
@@ -32,7 +31,6 @@ import xyz.xenondevs.nova.data.config.entry
 import xyz.xenondevs.nova.data.world.block.state.NovaTileEntityState
 import xyz.xenondevs.nova.item.DefaultGuiItems
 import xyz.xenondevs.nova.tileentity.NetworkedTileEntity
-import xyz.xenondevs.nova.tileentity.TileEntity
 import xyz.xenondevs.nova.tileentity.menu.TileEntityMenuClass
 import xyz.xenondevs.nova.tileentity.network.NetworkConnectionType
 import xyz.xenondevs.nova.tileentity.network.item.holder.NovaItemHolder
