@@ -32,6 +32,7 @@ import xyz.xenondevs.nova.data.config.entry
 import xyz.xenondevs.nova.data.world.block.state.NovaTileEntityState
 import xyz.xenondevs.nova.item.DefaultGuiItems
 import xyz.xenondevs.nova.tileentity.NetworkedTileEntity
+import xyz.xenondevs.nova.tileentity.TileEntity
 import xyz.xenondevs.nova.tileentity.menu.TileEntityMenuClass
 import xyz.xenondevs.nova.tileentity.network.NetworkConnectionType
 import xyz.xenondevs.nova.tileentity.network.item.holder.NovaItemHolder
@@ -59,7 +60,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         setPreUpdateHandler(::handleCellUpdate)
         setPostUpdateHandler(::handlePostCellUpdate)
     }
-    override val virtualMap = HashMap<Int, VirtualStorageCell>()
+    override val virtualMap = fromInventory(retrieveData("cells") { VirtualInventory(12) })
     override val cardInventory = retrieveData<VirtualInventory>("card") {
         VirtualInventory(IntArray(14) { 1 }) }.apply {
         setPreUpdateHandler(::handleCardUpdate) }
@@ -75,6 +76,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
     
     init {
         inventory.updateInventory()
+        updateCellInv()
     }
     
     override var whiteList: Boolean = false
@@ -117,6 +119,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
     override fun saveData() {
         super.saveData()
         storeData("card", cardInventory, true)
+        storeData("cells", toInventory(), true)
     }
     
     enum class SortMode {
@@ -322,7 +325,7 @@ class DeepStorageUnit(blockState: NovaTileEntityState) : NetworkedTileEntity(blo
         override val size: Int
             get() = virtualInventory.size
         
-        fun resize() {
+        private fun resize() {
             virtualInventory.resize(getSize())
         }
         

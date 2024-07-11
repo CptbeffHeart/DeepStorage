@@ -7,6 +7,7 @@ import xyz.xenondevs.invui.inventory.VirtualInventory
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason
+import xyz.xenondevs.invui.inventory.get
 import xyz.xenondevs.nova.tileentity.TileEntity
 import xyz.xenondevs.nova.util.VoidingVirtualInventory
 import xyz.xenondevs.nova.util.addToInventoryOrDrop
@@ -77,6 +78,26 @@ interface StorageCellHolder {
             if (remainingAmount == 0) return 0
         }
         return remainingAmount
+    }
+    
+    //TODO Change save method (hotfix)
+    fun toInventory(): VirtualInventory {
+        val virtualInventory = VirtualInventory(12)
+        virtualMap.entries.forEach { (key, value) ->
+            virtualInventory.setItem(TileEntity.SELF_UPDATE_REASON, key, value.toItem())
+        }
+        
+        return virtualInventory
+    }
+    
+    fun fromInventory(virtualInventory: VirtualInventory): HashMap<Int, VirtualStorageCell> {
+        val map = HashMap<Int, VirtualStorageCell>()
+        for (i in 0..< virtualInventory.size) {
+            val itemStack = virtualInventory[i] ?: continue
+            val toVirtual = itemStack.novaItem?.getBehaviorOrNull<StorageCell>()?.toVirtual(itemStack) ?: continue
+            map[i] = toVirtual
+        }
+        return map
     }
     
     fun updateCell(slot: Int) {
